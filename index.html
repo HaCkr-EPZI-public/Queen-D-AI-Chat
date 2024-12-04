@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queen D - AI Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .chat-container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 600px;
+            overflow-y: scroll;
+        }
+        .chat-box {
+            width: 100%;
+            max-width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #eee;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .chat-box input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .chat-output {
+            width: 100%;
+            min-height: 300px;
+            max-height: 400px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            margin-top: 15px;
+            overflow-y: auto;
+        }
+        .chat-output p {
+            margin: 10px 0;
+            font-size: 16px;
+            color: #333;
+        }
+        .watermark {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 18px;
+            color: rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="chat-box">
+            <input type="text" id="user_input" placeholder="Ask me something..." />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+        <div id="chat_output" class="chat-output">
+            <!-- AI response will be displayed here -->
+        </div>
+    </div>
+
+    <div class="watermark">
+        Asmodeus Epzi <3 Queen D
+    </div>
+
+    <script>
+        // Function to send user message to the Flask server
+        function sendMessage() {
+            const user_input = document.getElementById("user_input").value;
+            if (user_input.trim() === "") return;
+            
+            const chat_output = document.getElementById("chat_output");
+
+            // Display the user's message
+            const user_message = document.createElement("p");
+            user_message.textContent = "You: " + user_input;
+            chat_output.appendChild(user_message);
+            
+            // Make API request to Flask server
+            fetch('http://217.77.14.57:5000/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: user_input })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const bot_message = document.createElement("p");
+                bot_message.textContent = "Queen D: " + data.response;
+                chat_output.appendChild(bot_message);
+                document.getElementById("user_input").value = ''; // Clear input field
+                chat_output.scrollTop = chat_output.scrollHeight; // Scroll to the bottom
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const error_message = document.createElement("p");
+                error_message.textContent = "Error: Something went wrong!";
+                chat_output.appendChild(error_message);
+            });
+        }
+
+        // Allow the user to press "Enter" to send message
+        document.getElementById("user_input").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
+    </script>
+
+</body>
+</html>
